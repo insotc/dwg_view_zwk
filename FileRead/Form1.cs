@@ -25,9 +25,11 @@ namespace FileRead
             toolStripLabel1.Text = defaultParh;
             bc.listFolders(defaultParh, treeView1);
 
-            
+
             //bc.listComboBoxMyComputer(toolStripComboBox1);
-            axMxDrawX1.EnableToolBarButton("新建",false);
+            //axMxDrawX1.EnableToolBarButton("新建",false);
+
+            axMxDrawX1.HideToolBarControl("常用工具", "新建,重作", true, true);
             //axMxDrawX1.HideToolBarControl("新建", "新建",false,false);
         }
 
