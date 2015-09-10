@@ -1,0 +1,32 @@
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\FileRead.exe.config
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\FileRead.exe
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\FileRead.pdb
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.Form1.resources
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.Properties.Resources.resources
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.csproj.GenerateResource.Cache
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.exe
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.pdb
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\Interop.BRAVAACXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\AxInterop.BRAVAACXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.csproj.ResolveComReference.cache
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\Interop.BRAVAACXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\Interop.MxDrawXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\AxInterop.BRAVAACXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\bin\Debug\AxInterop.MxDrawXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\Interop.MxDrawXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\AxInterop.MxDrawXLib.dll
+E:\visual studio 2015\Projects\FileRead\FileRead\obj\Debug\FileRead.csprojResolveAssemblyReference.cache
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\bin\Debug\FileRead.exe.config
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.csproj.ResolveComReference.cache
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.exe
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.pdb
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.csprojResolveAssemblyReference.cache
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.Form1.resources
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.Properties.Resources.resources
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\FileRead.csproj.GenerateResource.Cache
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\Interop.MxDrawXLib.dll
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\obj\Debug\AxInterop.MxDrawXLib.dll
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\bin\Debug\FileRead.exe
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\bin\Debug\FileRead.pdb
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\bin\Debug\Interop.MxDrawXLib.dll
+C:\Users\fezhang\Desktop\4\FileRead\FileRead\bin\Debug\AxInterop.MxDrawXLib.dll
