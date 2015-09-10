@@ -24,6 +24,7 @@ namespace FileRead
         public void listFolders(string path,TreeView tv)
         {
             TreeNode tnA = tv.Nodes.Add("ALL");
+            tnA.Tag = TreeNodeType.DIRECTORY;
             TreeNode tnx = new TreeNode();
             getMyDirectories(path, tnA);
         }
@@ -39,11 +40,14 @@ namespace FileRead
             //show Leavel 1 files and folders
             foreach(string fileName in fileNames)
             {
+
                 TreeNode tnfile = tn.Nodes.Add(Path.GetFileName(fileName));
+                tnfile.Tag = TreeNodeType.FILE;
             }
             foreach(string directory in directories)
             {
                 TreeNode tnfloder = tn.Nodes.Add(directory.Substring(directory.LastIndexOf("\\")+1));
+                tnfloder.Tag = TreeNodeType.DIRECTORY;
                 //search current directory
                 getMyDirectories(directory, tnfloder);
             }

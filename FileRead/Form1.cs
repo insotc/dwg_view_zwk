@@ -29,7 +29,7 @@ namespace FileRead
             //bc.listComboBoxMyComputer(toolStripComboBox1);
             //axMxDrawX1.EnableToolBarButton("新建",false);
 
-            axMxDrawX1.HideToolBarControl("常用工具", "新建,重作", true, true);
+            //axMxDrawX1.HideToolBarControl("常用工具", "新建,重作", true, true);
             //axMxDrawX1.HideToolBarControl("新建", "新建",false,false);
         }
 
@@ -73,21 +73,21 @@ namespace FileRead
         //鼠标右击倒数第二级（文件夹）节点时，选择：添加下级、重命名、删除
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Nodes.Count == 0)
+            if ((TreeNodeType)e.Node.Tag == TreeNodeType.DIRECTORY)
             {
-                return;
+                if (e.Button == MouseButtons.Right)
+                {
+                    TreeNode tn = treeView1.GetNodeAt(e.X, e.Y);
+                    if (tn != null)
+                        treeView1.SelectedNode = tn;
+                    ContextMenu popMenu = new ContextMenu();
+                    popMenu.MenuItems.Add("添加下级", new EventHandler(AddNextLevel_Click));
+                    popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
+                    popMenu.MenuItems.Add("删除", new EventHandler(Delete_Click));
+                    tn.ContextMenu = popMenu;
+                }
             }
-            if(e.Button == MouseButtons.Right)
-            {
-                TreeNode tn = treeView1.GetNodeAt(e.X, e.Y);
-                if (tn != null)
-                    treeView1.SelectedNode = tn;
-                ContextMenu popMenu = new ContextMenu();
-                popMenu.MenuItems.Add("添加下级", new EventHandler(AddNextLevel_Click));
-                popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
-                popMenu.MenuItems.Add("删除", new EventHandler(Delete_Click));
-                tn.ContextMenu = popMenu;
-            }
+            
         }
 
         private void ReName_Click(object sender, EventArgs e)
