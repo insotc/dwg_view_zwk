@@ -21,7 +21,8 @@ namespace FileRead
         private void Form1_Load(object sender, EventArgs e)
         {
             //初始化treeView为默认路径下
-            string defaultParh = Application.StartupPath;
+            // string defaultParh = Application.StartupPath;
+            string defaultParh = "C:\\Users\\fezhang\\Desktop\\4\\testDataSource2";
             toolStripLabel1.Text = defaultParh;
             bc.listFolders(defaultParh, treeView1);
 
@@ -54,17 +55,12 @@ namespace FileRead
         //点击叶节点时，显示dwg文件或图片文件
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if(e.Node.Nodes.Count != 0)
-            {
-                return;
-            }
-            else
-            {
-
+            if(((TreeNodeTag)e.Node.Tag).type == TreeNodeType.FILE)
+            { 
                 //显示路径
                 treeView1.PathSeparator = "\\";
-                string openfile = (toolStripLabel1.Text + e.Node.FullPath.Substring(3)).Replace("\\", "/");
-                axMxDrawX1.OpenDwgFile(openfile);
+                string openfilepath = (toolStripLabel1.Text + e.Node.FullPath.Substring(3)).Replace("\\", "/");
+                axMxDrawX1.OpenDwgFile(openfilepath);
                 //测试图片
                 //string file = "C:/Users/ceedi/Desktop/图纸目录.dwg";
                 //axMxDrawX1.OpenDwgFile(file);
@@ -73,66 +69,255 @@ namespace FileRead
         //鼠标右击倒数第二级（文件夹）节点时，选择：添加下级、重命名、删除
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if ((TreeNodeType)e.Node.Tag == TreeNodeType.DIRECTORY)
+            if ( ((TreeNodeTag)e.Node.Tag).type == TreeNodeType.DIRECTORY)
             {
                 if (e.Button == MouseButtons.Right)
                 {
                     TreeNode tn = treeView1.GetNodeAt(e.X, e.Y);
                     if (tn != null)
+                    {
                         treeView1.SelectedNode = tn;
-                    ContextMenu popMenu = new ContextMenu();
-                    popMenu.MenuItems.Add("添加下级", new EventHandler(AddNextLevel_Click));
-                    popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
-                    popMenu.MenuItems.Add("删除", new EventHandler(Delete_Click));
-                    tn.ContextMenu = popMenu;
+                        ContextMenu popMenu = new ContextMenu();
+                        popMenu.MenuItems.Add("添加子分类", new EventHandler(AddChildDir_Click));
+                        popMenu.MenuItems.Add("添加文件", new EventHandler(AddChildFile_Click));
+                        popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
+                        popMenu.MenuItems.Add("删除", new EventHandler(DeleteDir_Click));
+                        tn.ContextMenu = popMenu;
+                    }
                 }
             }
-            
+            else if (((TreeNodeTag)e.Node.Tag).type == TreeNodeType.FILE)
+            {
+                if(e.Button == MouseButtons.Right)
+                {
+                    TreeNode tn = treeView1.GetNodeAt(e.X, e.Y);
+                    if (tn != null)
+                    {
+                        treeView1.SelectedNode = tn;
+                        ContextMenu popMenu = new ContextMenu();
+                        popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
+                        popMenu.MenuItems.Add("删除", new EventHandler(DeleteFile_Click));
+                        tn.ContextMenu = popMenu;
+                    }
+                       
+                }
+            }
+            else if (((TreeNodeTag)e.Node.Tag).type == TreeNodeType.ROOTNODE)
+            {
+                if (e.Button == MouseButtons.Right)
+                {
+                    TreeNode tn = treeView1.GetNodeAt(e.X, e.Y);
+                    if (tn != null)
+                    {
+                        treeView1.SelectedNode = tn;
+                        ContextMenu popMenu = new ContextMenu();
+                        popMenu.MenuItems.Add("添加子分类", new EventHandler(AddChildDir_Click));
+                        popMenu.MenuItems.Add("添加文件", new EventHandler(AddChildFile_Click));
+                        tn.ContextMenu = popMenu;
+                    }
+                }
+            }
+
         }
 
         private void ReName_Click(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
             treeView1.LabelEdit = true;
             treeView1.SelectedNode.BeginEdit();
         }
 
-        private void Delete_Click(object sender, EventArgs e)
+        private void DeleteDir_Click(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
-            treeView1.Nodes.Remove(treeView1.SelectedNode);
+            int cnt = calAffectedFileCnt(treeView1.SelectedNode);
+            if (MessageBox.Show("确定删除目录：" + treeView1.SelectedNode.Text + " ? \n将会删除 "+cnt+" 个文件", "删除文件", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                string path = getNodeFullPath(treeView1.SelectedNode);
+                Directory.Delete(path, true);
+                treeView1.Nodes.Remove(treeView1.SelectedNode);
+            }
+
         }
 
-        private void AddNextLevel_Click(object sender, EventArgs e)
+        private void DeleteFile_Click(object sender, EventArgs e)
         {
-            //throw new NotImplementedException();
-            treeView1.LabelEdit = true;
+            if (MessageBox.Show("确定删除文件："+ treeView1.SelectedNode.Text+" ?", "删除文件" , MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                string path = getNodeFullPath(treeView1.SelectedNode);
+                File.Delete(path);
+                treeView1.Nodes.Remove(treeView1.SelectedNode);
+            }
+          
+        }
+
+        private void AddChildDir_Click(object sender, EventArgs e)
+        {
             treeView1.SelectedNode.Expand();
-            TreeNode tnNew = new TreeNode("新建类别");
+            TreeNode tnNew = new TreeNode();
+            tnNew.Tag = new TreeNodeTag(TreeNodeType.DIRECTORY, "");
             treeView1.SelectedNode.Nodes.Add(tnNew);
-            tnNew.BeginEdit();
+            setNodeUniqueName(tnNew);
+            Directory.CreateDirectory(getNodeFullPath(tnNew));
+        }
+
+        private void AddChildFile_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+
+                string fileSrcPath = openFileDialog.FileName;
+                TreeNode curNode = treeView1.SelectedNode;
+                string fileDesPath = getNodeFullPath(curNode);
+                string desFileName = openFileDialog.SafeFileName;
+
+                if (nodeHasChildWithSameName(curNode, desFileName))
+                {
+                    int startIdx = 1;
+                    while (nodeHasChildWithSameName(curNode, desFileName + "(" + startIdx + ")"))
+                    {
+                        startIdx++;
+                    }
+                    desFileName += "(" + startIdx + ")";
+                }
+                fileDesPath += "\\" + desFileName;
+                System.IO.File.Copy(fileSrcPath, fileDesPath);
+
+                treeView1.SelectedNode.Expand();
+                TreeNode tnNew = new TreeNode(desFileName);
+                tnNew.Tag = new TreeNodeTag(TreeNodeType.FILE, "");
+                treeView1.SelectedNode.Nodes.Add(tnNew);
+            }
+           
+           
         }
         private void treeView1_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-
+            
             e.Node.EndEdit(true);
             treeView1.LabelEdit = false;
-            string nodePath = toolStripLabel1.Text + e.Node.Parent.FullPath.Substring(3) + "\\" + e.Label;
-            if (Directory.Exists(nodePath))
+           
+            if (nodeHasSibWithName(e.Node, e.Label))
             {
-                MessageBox.Show("类别名已存在，请重新命名！");
-                //treeView1.SelectedNode.BeginEdit();
+                MessageBox.Show("该名称已存在，请重新命名！");
+                e.CancelEdit = true;
             }
             else
             {
-                //Directory.CreateDirectory(nodePath);
+                string desPath = getNodeFullPath(e.Node.Parent) + "\\" + e.Label;
+                string srcPath = getNodeFullPath(e.Node.Parent) + "\\" + e.Node.Text;
+                TreeNodeType type = ((TreeNodeTag)e.Node.Tag).type;
+                if(type == TreeNodeType.DIRECTORY)
+                {
+                    if(Directory.Exists(srcPath) == true && Directory.Exists(desPath) == false)
+                    {
+                        Directory.Move(srcPath, desPath);
+                    }
+                }
+                else if (type == TreeNodeType.FILE)
+                {
+                    if (File.Exists(srcPath) == true && File.Exists(desPath) == false)
+                    {
+                        Directory.Move(srcPath, desPath);
+                    }
+                }
+            }
+
+            string nodePath = toolStripLabel1.Text + e.Node.Parent.FullPath.Substring(3) + "\\" + e.Label;
+            //if (Directory.Exists(nodePath))
+            //{
+            //    MessageBox.Show("类别名已存在，请重新命名！");
+            //    //treeView1.SelectedNode.BeginEdit();
+            //}
+            //else
+            //{
+            //    //Directory.CreateDirectory(nodePath);
                 
+            //}
+        }
+
+        private bool nodeHasSibWithName(TreeNode node, string name)
+        {
+            TreeNode tmpNode = node.PrevNode;
+            while(tmpNode != null)
+            {
+                if (tmpNode.Text == name) return true;
+                tmpNode = tmpNode.PrevNode;
+            }
+            tmpNode = node.NextNode;
+            while (tmpNode != null)
+            {
+                if (tmpNode.Text == name) return true;
+                tmpNode = tmpNode.NextNode;
+            }
+            return false;
+        }
+
+        private bool nodeHasChildWithSameName(TreeNode node, string name)
+        {
+            if (node.FirstNode == null) return false;
+            if (node.FirstNode.Text == name) return true;
+            return nodeHasSibWithName(node.FirstNode, name);
+        }
+
+        private void setNodeUniqueName(TreeNode node)
+        {
+            string baseText = "empty";
+            if(((TreeNodeTag)node.Tag).type == TreeNodeType.FILE)
+            {
+                baseText = "新建文件";
+            } else
+            {
+                baseText = "新建类别";
+            }
+
+            int startIdx = 1;
+            while (true)
+            {
+                string newText = baseText + startIdx;
+                if (nodeHasSibWithName(node, newText))
+                {
+                    startIdx++;
+                }
+                else
+                {
+                    node.Text = newText;
+                    return;
+                }
             }
         }
 
+        private bool isStrEmpty(string str)
+        {
+            if(str == null || str.Length == 0){ return true; }
+            return false;
+        }
 
-       
+        private string getNodeFullPath(TreeNode node)
+        {
+            int startIdx = node.FullPath.IndexOf("\\");
+            if(startIdx == -1)
+            {
+                startIdx = node.FullPath.Length;
+            }
+            string fpath = toolStripLabel1.Text + node.FullPath.Substring(startIdx);
+            return fpath;
+        }
 
-        
+        private int calAffectedFileCnt(TreeNode node)
+        {
+            int cnt = 0;
+            if(((TreeNodeTag)node.Tag).type == TreeNodeType.FILE)
+            {
+                cnt++;
+            }
+            TreeNode child = node.FirstNode;
+            while(child != null)
+            {
+                cnt += calAffectedFileCnt(child);
+                child = child.NextNode;
+            }
+            return cnt;
+        }
+
     }
 }

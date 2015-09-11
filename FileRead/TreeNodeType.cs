@@ -10,5 +10,6 @@ namespace FileRead
     {
         DIRECTORY,
         FILE,
+        ROOTNODE,
     }
 }

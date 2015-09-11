@@ -23,8 +23,8 @@ namespace FileRead
         //根据指定路径path，在treeview1中显示路径下的所有文件和文件夹
         public void listFolders(string path,TreeView tv)
         {
-            TreeNode tnA = tv.Nodes.Add("ALL");
-            tnA.Tag = TreeNodeType.DIRECTORY;
+            TreeNode tnA = tv.Nodes.Add("全部类别");
+            tnA.Tag =new TreeNodeTag(TreeNodeType.ROOTNODE, "");
             TreeNode tnx = new TreeNode();
             getMyDirectories(path, tnA);
         }
@@ -42,12 +42,12 @@ namespace FileRead
             {
 
                 TreeNode tnfile = tn.Nodes.Add(Path.GetFileName(fileName));
-                tnfile.Tag = TreeNodeType.FILE;
+                tnfile.Tag = new TreeNodeTag(TreeNodeType.FILE, "");
             }
             foreach(string directory in directories)
             {
                 TreeNode tnfloder = tn.Nodes.Add(directory.Substring(directory.LastIndexOf("\\")+1));
-                tnfloder.Tag = TreeNodeType.DIRECTORY;
+                tnfloder.Tag = new TreeNodeTag(TreeNodeType.DIRECTORY, "");
                 //search current directory
                 getMyDirectories(directory, tnfloder);
             }
