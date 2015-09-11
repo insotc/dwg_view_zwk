@@ -21,8 +21,11 @@ namespace FileRead
         private void Form1_Load(object sender, EventArgs e)
         {
             //初始化treeView为默认路径下
-            // string defaultParh = Application.StartupPath;
-            string defaultParh = "C:\\Users\\fezhang\\Desktop\\4\\testDataSource2";
+            string defaultParh = Application.StartupPath;
+            if(Directory.Exists(defaultParh + "\\" + "Data"))
+            {
+                defaultParh += "\\" + "Data";
+            }
             toolStripLabel1.Text = defaultParh;
             bc.listFolders(defaultParh, treeView1);
 
@@ -56,14 +59,25 @@ namespace FileRead
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if(((TreeNodeTag)e.Node.Tag).type == TreeNodeType.FILE)
-            { 
-                //显示路径
-                treeView1.PathSeparator = "\\";
-                string openfilepath = (toolStripLabel1.Text + e.Node.FullPath.Substring(3)).Replace("\\", "/");
-                axMxDrawX1.OpenDwgFile(openfilepath);
-                //测试图片
-                //string file = "C:/Users/ceedi/Desktop/图纸目录.dwg";
-                //axMxDrawX1.OpenDwgFile(file);
+            {
+                if (isCADFileFormat( getFileFormatName( e.Node.Text)))
+                {
+                    pictureBox1.Hide();
+                    axMxDrawX1.Show();
+                    //显示路径
+                    string openfilepath = getNodeFullPath(e.Node);
+                    axMxDrawX1.OpenDwgFile(openfilepath);
+                }
+
+                else if (isImageFileFormat(getFileFormatName(e.Node.Text)))
+                {
+                    pictureBox1.Show();
+                    axMxDrawX1.Hide();
+                    //显示路径
+                    string openfilepath = getNodeFullPath(e.Node);
+                    pictureBox1.Image = Image.FromFile(openfilepath);
+                    axMxDrawX1.OpenDwgFile(openfilepath);
+                }
             }
         }
         //鼠标右击倒数第二级（文件夹）节点时，选择：添加下级、重命名、删除
@@ -162,6 +176,7 @@ namespace FileRead
         private void AddChildFile_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "CAD 文件 (*.dwg)|*.dwg|图片文件(*.jpg,*.gif,*.bmp,*.jpeg,*.png)|*.jpg;*.gif;*.bmp,*.jpeg,*.png";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
 
@@ -317,6 +332,26 @@ namespace FileRead
                 child = child.NextNode;
             }
             return cnt;
+        }
+
+        private bool isCADFileFormat(string fileFormatName)
+        {
+            if (fileFormatName == "dwg") return true;
+            return false;
+        }
+
+        private bool isImageFileFormat(string fileFormatName)
+        {
+            if (fileFormatName == "bmp" || fileFormatName == "jpg" || fileFormatName == "jpeg" || fileFormatName == "gif" || fileFormatName == "png") return true;
+            return false;
+        }
+
+        private string getFileFormatName(string str)
+        {
+            int idx = str.LastIndexOf(".");
+            if (idx == -1) return "";
+            string formatStr = str.Substring(idx + 1);
+            return formatStr;
         }
 
     }
