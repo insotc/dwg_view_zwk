@@ -20,6 +20,10 @@ namespace FileRead
         BaseClass bc = new BaseClass();
         private void Form1_Load(object sender, EventArgs e)
         {
+            //打开欢迎界面
+            WelcomeForm welcomeForm = new WelcomeForm();
+            welcomeForm.ShowDialog();
+
             //初始化treeView为默认路径下
             string defaultParh = Application.StartupPath;
             if(Directory.Exists(defaultParh + "\\" + "Data"))
