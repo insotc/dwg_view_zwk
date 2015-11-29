@@ -15,6 +15,7 @@ namespace FileRead
     {
         public Form1()
         {
+   
             InitializeComponent();
         }
         BaseClass bc = new BaseClass();
@@ -24,21 +25,26 @@ namespace FileRead
             WelcomeForm welcomeForm = new WelcomeForm();
             welcomeForm.ShowDialog();
 
+            this.WindowState = FormWindowState.Maximized;
+
             //初始化treeView为默认路径下
             string defaultParh = Application.StartupPath;
             if(Directory.Exists(defaultParh + "\\" + "Data"))
             {
                 defaultParh += "\\" + "Data";
             }
+          
+
+            // For debug
+           // defaultParh = "C:\\Users\\fezhang\\Source\\Repos\\dwg_view_zwk111\\testDataSource";
             toolStripLabel1.Text = defaultParh;
+
             bc.listFolders(defaultParh, treeView1);
 
 
             //bc.listComboBoxMyComputer(toolStripComboBox1);
             //axMxDrawX1.EnableToolBarButton("新建",false);
 
-            //axMxDrawX1.HideToolBarControl("常用工具", "新建,重作", true, true);
-            //axMxDrawX1.HideToolBarControl("新建", "新建",false,false);
         }
 
 
@@ -64,24 +70,37 @@ namespace FileRead
         {
             if(((TreeNodeTag)e.Node.Tag).type == TreeNodeType.FILE)
             {
-                if (isCADFileFormat( getFileFormatName( e.Node.Text)))
+                tabControl1.TabPages.Clear();
+                string nodePath = getNodeFullPath(e.Node);
+              
+                string[] files = Directory.GetFiles(nodePath);
+                foreach (string file in files)
                 {
-                    pictureBox1.Hide();
-                    axMxDrawX1.Show();
-                    //显示路径
-                    string openfilepath = getNodeFullPath(e.Node);
-                    axMxDrawX1.OpenDwgFile(openfilepath);
+                    if (isCADFileFormat(getFileFormatName( Path.GetFileName(file))) || isImageFileFormat(getFileFormatName( Path.GetFileName(file))))
+                    {
+                        TabPage tabpage = new TabPage();
+                        tabpage.Text = BaseClass.remove_prefix(Path.GetFileNameWithoutExtension(file));
+                        tabControl1.TabPages.Add(tabpage);
+                        tabpage.Tag = file;
+
+                        ContextMenu popMenu = new ContextMenu();
+                        popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
+                        popMenu.MenuItems.Add("删除", new EventHandler(DeleteFile_Click));
+                      
+                       //tabpage.ContextMenu = popMenu;
+
+                     
+
+                    }
+                   
                 }
 
-                else if (isImageFileFormat(getFileFormatName(e.Node.Text)))
+      
+                if(tabControl1.TabPages.Count > 0)
                 {
-                    pictureBox1.Show();
-                    axMxDrawX1.Hide();
-                    //显示路径
-                    string openfilepath = getNodeFullPath(e.Node);
-                    pictureBox1.Image = Image.FromFile(openfilepath);
-                    axMxDrawX1.OpenDwgFile(openfilepath);
+                    handle_tabcontainerchange();
                 }
+                
             }
         }
         //鼠标右击倒数第二级（文件夹）节点时，选择：添加下级、重命名、删除
@@ -96,8 +115,8 @@ namespace FileRead
                     {
                         treeView1.SelectedNode = tn;
                         ContextMenu popMenu = new ContextMenu();
-                        popMenu.MenuItems.Add("添加子分类", new EventHandler(AddChildDir_Click));
-                        popMenu.MenuItems.Add("添加文件", new EventHandler(AddChildFile_Click));
+                        popMenu.MenuItems.Add("添加类别", new EventHandler(AddChildDir_Click));
+                        popMenu.MenuItems.Add("添加线路", new EventHandler(AddChildEnt_Click));
                         popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
                         popMenu.MenuItems.Add("删除", new EventHandler(DeleteDir_Click));
                         tn.ContextMenu = popMenu;
@@ -113,8 +132,9 @@ namespace FileRead
                     {
                         treeView1.SelectedNode = tn;
                         ContextMenu popMenu = new ContextMenu();
+                        popMenu.MenuItems.Add("添加图纸文件", new EventHandler(AddChildFile_Click));
                         popMenu.MenuItems.Add("重命名", new EventHandler(ReName_Click));
-                        popMenu.MenuItems.Add("删除", new EventHandler(DeleteFile_Click));
+                        popMenu.MenuItems.Add("删除", new EventHandler(DeleteDir_Click));
                         tn.ContextMenu = popMenu;
                     }
                        
@@ -129,8 +149,8 @@ namespace FileRead
                     {
                         treeView1.SelectedNode = tn;
                         ContextMenu popMenu = new ContextMenu();
-                        popMenu.MenuItems.Add("添加子分类", new EventHandler(AddChildDir_Click));
-                        popMenu.MenuItems.Add("添加文件", new EventHandler(AddChildFile_Click));
+                        popMenu.MenuItems.Add("添加类别", new EventHandler(AddChildDir_Click));
+                        popMenu.MenuItems.Add("添加线路", new EventHandler(AddChildEnt_Click));
                         tn.ContextMenu = popMenu;
                     }
                 }
@@ -147,7 +167,7 @@ namespace FileRead
         private void DeleteDir_Click(object sender, EventArgs e)
         {
             int cnt = calAffectedFileCnt(treeView1.SelectedNode);
-            if (MessageBox.Show("确定删除目录：" + treeView1.SelectedNode.Text + " ? \n将会删除 "+cnt+" 个文件", "删除文件", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show("确定删除：" + treeView1.SelectedNode.Text + " ? \n将会删除 "+cnt+" 个文件", "删除文件", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 string path = getNodeFullPath(treeView1.SelectedNode);
                 Directory.Delete(path, true);
@@ -175,6 +195,18 @@ namespace FileRead
             treeView1.SelectedNode.Nodes.Add(tnNew);
             setNodeUniqueName(tnNew);
             Directory.CreateDirectory(getNodeFullPath(tnNew));
+            treeView1.SelectedNode.Expand();
+        }
+
+        private void AddChildEnt_Click(object sender, EventArgs e)
+        {
+            treeView1.SelectedNode.Expand();
+            TreeNode tnNew = new TreeNode();
+            tnNew.Tag = new TreeNodeTag(TreeNodeType.FILE, "");
+            treeView1.SelectedNode.Nodes.Add(tnNew);
+            setNodeUniqueName(tnNew);
+            Directory.CreateDirectory(getNodeFullPath(tnNew));
+            treeView1.SelectedNode.Expand();
         }
 
         private void AddChildFile_Click(object sender, EventArgs e)
@@ -202,9 +234,11 @@ namespace FileRead
                 System.IO.File.Copy(fileSrcPath, fileDesPath);
 
                 treeView1.SelectedNode.Expand();
-                TreeNode tnNew = new TreeNode(desFileName);
+                treeView1_AfterSelect(treeView1.SelectedNode, new TreeViewEventArgs(treeView1.SelectedNode));
+                /*TreeNode tnNew = new TreeNode(desFileName);
                 tnNew.Tag = new TreeNodeTag(TreeNodeType.FILE, "");
                 treeView1.SelectedNode.Nodes.Add(tnNew);
+                */
             }
            
            
@@ -214,34 +248,45 @@ namespace FileRead
             
             e.Node.EndEdit(true);
             treeView1.LabelEdit = false;
+
            
-            if (nodeHasSibWithName(e.Node, e.Label))
+
+                    if (nodeHasSibWithName(e.Node, e.Label))
             {
                 MessageBox.Show("该名称已存在，请重新命名！");
                 e.CancelEdit = true;
             }
             else
             {
-                string desPath = getNodeFullPath(e.Node.Parent) + "\\" + e.Label;
-                string srcPath = getNodeFullPath(e.Node.Parent) + "\\" + e.Node.Text;
+                string prefix;
+               if (((TreeNodeTag)e.Node.Tag).type == TreeNodeType.FILE)
+               {
+                   prefix = BaseClass.ENT_PREFIX ;
+               }
+               else
+               {
+                    prefix = BaseClass.DIR_PREFIX ;
+               }
+                string desPath = getNodeFullPath(e.Node.Parent) + "\\" + prefix+ e.Label;
+                string srcPath = getNodeFullPath(e.Node.Parent) + "\\" + prefix+e.Node.Text;
                 TreeNodeType type = ((TreeNodeTag)e.Node.Tag).type;
-                if(type == TreeNodeType.DIRECTORY)
-                {
+             
+              //  if(type == TreeNodeType.DIRECTORY)
+               // {
                     if(Directory.Exists(srcPath) == true && Directory.Exists(desPath) == false)
                     {
                         Directory.Move(srcPath, desPath);
                     }
-                }
-                else if (type == TreeNodeType.FILE)
-                {
-                    if (File.Exists(srcPath) == true && File.Exists(desPath) == false)
-                    {
-                        Directory.Move(srcPath, desPath);
-                    }
-                }
+                //}
+                //else if (type == TreeNodeType.FILE)
+                //{
+                  //  if (File.Exists(srcPath) == true && File.Exists(desPath) == false)
+                   // {
+                    //    Directory.Move(srcPath, desPath);
+                   // }
+                //}
             }
 
-            string nodePath = toolStripLabel1.Text + e.Node.Parent.FullPath.Substring(3) + "\\" + e.Label;
             //if (Directory.Exists(nodePath))
             //{
             //    MessageBox.Show("类别名已存在，请重新命名！");
@@ -283,16 +328,21 @@ namespace FileRead
             string baseText = "empty";
             if(((TreeNodeTag)node.Tag).type == TreeNodeType.FILE)
             {
-                baseText = "新建文件";
+                baseText = "新建线路";
             } else
             {
                 baseText = "新建类别";
             }
 
-            int startIdx = 1;
+            int startIdx = 0;
             while (true)
             {
-                string newText = baseText + startIdx;
+                string newText;
+                if (startIdx > 0)
+                {
+                    newText = baseText + "(" + startIdx + ")";
+                }
+                else newText = baseText;
                 if (nodeHasSibWithName(node, newText))
                 {
                     startIdx++;
@@ -313,12 +363,27 @@ namespace FileRead
 
         private string getNodeFullPath(TreeNode node)
         {
-            int startIdx = node.FullPath.IndexOf("\\");
-            if(startIdx == -1)
+            string fpath = toolStripLabel1.Text;
+            string[] parts = node.FullPath.Split('\\');
+            for(int i = 1; i < parts.Length; i++)
             {
-                startIdx = node.FullPath.Length;
+                if (i == parts.Length-1)
+                {
+                    if (((TreeNodeTag)node.Tag).type == TreeNodeType.FILE)
+                    {
+                        fpath += "\\" + append_ent_prefix(parts[i]);
+                    } else if (((TreeNodeTag)node.Tag).type == TreeNodeType.DIRECTORY)
+                    {
+                        fpath += "\\" + append_dir_prefix(parts[i]);
+                    }
+                } else
+                {
+                    fpath += "\\" + append_dir_prefix(parts[i]);
+                }
             }
-            string fpath = toolStripLabel1.Text + node.FullPath.Substring(startIdx);
+           
+        
+
             return fpath;
         }
 
@@ -358,5 +423,46 @@ namespace FileRead
             return formatStr;
         }
 
+        private string append_dir_prefix(string str)
+        {
+            return BaseClass.DIR_PREFIX + str;
+        }
+
+        private string append_ent_prefix(string str)
+        {
+            return BaseClass.ENT_PREFIX + str;
+        }
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            handle_tabcontainerchange();
+            
+        }
+
+        private void handle_tabcontainerchange()
+        {
+            if (tabControl1.SelectedIndex >= 0)
+            {
+                string fp = (string)tabControl1.SelectedTab.Tag;
+
+                if (isCADFileFormat(getFileFormatName(fp)))
+                {
+                    tabControl1.SelectedTab.Controls.Add(this.axMxDrawX1);
+                    axMxDrawX1.OpenDwgFile(fp);
+                    this.axMxDrawX1.TabIndex = tabControl1.SelectedIndex;
+                }
+
+                else if (isImageFileFormat(getFileFormatName(fp)))
+                {
+                  
+                    tabControl1.SelectedTab.Controls.Add(this.pictureBox1);
+
+                    pictureBox1.Image = Image.FromFile(fp);
+                    //this.pictureBox1.TabIndex = tabControl1.SelectedIndex;
+
+                }
+            }
+        }
     }
 }

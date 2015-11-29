@@ -19,7 +19,7 @@ namespace FileRead
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (progressBar1.Value < progressBar1.Maximum)
+            if (progressBar1.Value < 80)// progressBar1.Maximum)
             {
                 progressBar1.Value++;
                 //MessageBox.Show(progressBar1.Value.ToString());

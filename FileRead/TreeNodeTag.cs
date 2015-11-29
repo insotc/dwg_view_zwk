@@ -16,5 +16,6 @@ namespace FileRead
 
         public TreeNodeType type;
         public string lasttimeText;
+        public string fileNameWithType;
     }
 }
