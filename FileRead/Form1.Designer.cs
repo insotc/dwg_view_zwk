@@ -119,6 +119,7 @@
             // 
             // treeView1
             // 
+            this.treeView1.BackColor = System.Drawing.SystemColors.Window;
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView1.Location = new System.Drawing.Point(0, 0);
             this.treeView1.Name = "treeView1";
@@ -186,8 +187,9 @@
             this.ClientSize = new System.Drawing.Size(858, 570);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.toolStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "输电线路通用设计数据库";
+            this.Text = "廊坊输电线路基础通用设计数据库系统";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();

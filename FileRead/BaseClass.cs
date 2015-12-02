@@ -30,6 +30,7 @@ namespace FileRead
             TreeNode tnA = tv.Nodes.Add("全部类别");
             tnA.Tag =new TreeNodeTag(TreeNodeType.ROOTNODE, "");
             getMyDirectories(path, tnA);
+            tnA.Expand();
         }
         private void getMyDirectories(string path,TreeNode tn)
         {

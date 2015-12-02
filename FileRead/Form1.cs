@@ -215,7 +215,7 @@ namespace FileRead
             openFileDialog.Filter = "CAD 文件 (*.dwg)|*.dwg|图片文件(*.jpg,*.gif,*.bmp,*.jpeg,*.png)|*.jpg;*.gif;*.bmp,*.jpeg,*.png";
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-
+               
                 string fileSrcPath = openFileDialog.FileName;
                 TreeNode curNode = treeView1.SelectedNode;
                 string fileDesPath = getNodeFullPath(curNode);
@@ -463,6 +463,11 @@ namespace FileRead
 
                 }
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            axMxDrawX1.PrintHtml(true, false);
         }
     }
 }
